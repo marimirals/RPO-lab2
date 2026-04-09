@@ -1,0 +1,30 @@
+# Binaries
+*.exe
+*.dll
+*.so
+*.dylib
+lab2
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# Secrets
+*.key
+*.pem
+!.gitkeep
+secrets/
+
+# Env
+.env
+*.env.local
+
+# IDE
+.vscode/
+*.swp
+*.swo
+
+# Swagger docs (генерируются)
+internal/swagger/docs/
