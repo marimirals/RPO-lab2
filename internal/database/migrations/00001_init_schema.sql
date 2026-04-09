@@ -7,12 +7,12 @@ CREATE TABLE IF NOT EXISTS users (
     login TEXT UNIQUE NOT NULL,
     name TEXT NOT NULL,
     password_hash TEXT NOT NULL,
-    is_admin BOOLEAN DEFAULT FALSE,
+    is_admin INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
--- Таблица ключей (один ключ для многих карт)
+-- Таблица ключей
 CREATE TABLE IF NOT EXISTS keys (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     key_value TEXT NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS terminals (
     name TEXT NOT NULL,
     address TEXT,
     location TEXT,
-    is_active BOOLEAN DEFAULT TRUE,
+    is_active INTEGER DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS cards (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     card_number TEXT UNIQUE NOT NULL,
     balance INTEGER DEFAULT 0,
-    is_blocked BOOLEAN DEFAULT FALSE,
+    is_blocked INTEGER DEFAULT 0,
     owner_name TEXT,
     key_id INTEGER,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -58,11 +58,11 @@ CREATE TABLE IF NOT EXISTS transactions (
     FOREIGN KEY (terminal_id) REFERENCES terminals(id)
 );
 
--- Индексы для производительности
-CREATE INDEX idx_cards_number ON cards(card_number);
-CREATE INDEX idx_transactions_card ON transactions(card_id);
-CREATE INDEX idx_transactions_terminal ON transactions(terminal_id);
-CREATE INDEX idx_users_login ON users(login);
+-- Индексы
+CREATE INDEX IF NOT EXISTS idx_cards_number ON cards(card_number);
+CREATE INDEX IF NOT EXISTS idx_transactions_card ON transactions(card_id);
+CREATE INDEX IF NOT EXISTS idx_transactions_terminal ON transactions(terminal_id);
+CREATE INDEX IF NOT EXISTS idx_users_login ON users(login);
 
 -- +goose StatementEnd
 

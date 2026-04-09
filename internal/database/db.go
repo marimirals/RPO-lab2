@@ -1,62 +1,65 @@
 package database
 
 import (
-    "database/sql"
-    "fmt"
-    "log"
-    "os"
-    "path/filepath"
+	"database/sql"
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
 
-    _ "github.com/mattn/go-sqlite3"
-    "github.com/pressly/goose/v3"
+	_ "modernc.org/sqlite"
+	"github.com/pressly/goose/v3"
 )
 
 var DB *sql.DB
 
 func InitDB(dbPath string) error {
-    // Создаем директорию для БД если не существует
-    dir := filepath.Dir(dbPath)
-    if err := os.MkdirAll(dir, 0755); err != nil {
-        return fmt.Errorf("failed to create db directory: %w", err)
-    }
+	dir := filepath.Dir(dbPath)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("failed to create db directory: %w", err)
+	}
 
-    var err error
-    DB, err = sql.Open("sqlite3", dbPath)
-    if err != nil {
-        return fmt.Errorf("failed to open database: %w", err)
-    }
+	var err error
+	DB, err = sql.Open("sqlite", dbPath)
+	if err != nil {
+		return fmt.Errorf("failed to open database: %w", err)
+	}
 
-    // Проверка подключения
-    if err = DB.Ping(); err != nil {
-        return fmt.Errorf("failed to ping database: %w", err)
-    }
+	// 🔑 КРИТИЧНО для SQLite + Goose:
+	// SQLite не поддерживает многопоточную запись, ограничиваем до 1 соединения
+	DB.SetMaxOpenConns(1)
+	DB.SetMaxIdleConns(1)
 
-    return nil
+	if err = DB.Ping(); err != nil {
+		return fmt.Errorf("failed to ping database: %w", err)
+	}
+	return nil
 }
 
 func RunMigrations(dbPath string) error {
-    // Открываем соединение для миграций
-    db, err := sql.Open("sqlite3", dbPath)
-    if err != nil {
-        return fmt.Errorf("failed to open database for migrations: %w", err)
-    }
-    defer db.Close()
+	db, err := sql.Open("sqlite", dbPath)
+	if err != nil {
+		return fmt.Errorf("failed to open database for migrations: %w", err)
+	}
+	defer db.Close()
 
-    // Путь к папке с миграциями
-    migrationDir := "./internal/database/migrations"
-    
-    // Запускаем миграции вверх
-    if err := goose.Up(db, migrationDir); err != nil {
-        return fmt.Errorf("failed to run migrations: %w", err)
-    }
+	db.SetMaxOpenConns(1)
+	
+	// 🔑 Явно указываем диалект, чтобы goose правильно парсил SQLite-синтаксис
+	goose.SetDialect("sqlite3")
 
-    log.Println("Migrations completed successfully")
-    return nil
+	migrationDir := "./internal/database/migrations"
+	if err := goose.Up(db, migrationDir); err != nil {
+		return fmt.Errorf("failed to run migrations: %w", err)
+	}
+
+	log.Println("Migrations completed successfully")
+	return nil
 }
 
 func CloseDB() error {
-    if DB != nil {
-        return DB.Close()
-    }
-    return nil
+	if DB != nil {
+		return DB.Close()
+	}
+	return nil
 }

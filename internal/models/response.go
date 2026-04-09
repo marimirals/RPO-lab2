@@ -7,11 +7,12 @@ type APIResponse struct {
     Error   string      `json:"error,omitempty"`
 }
 
-// ErrorResponse - ответ с ошибкой
+// ErrorResponse - структура для ответа с ошибкой
 type ErrorResponse struct {
     Error string `json:"error"`
 }
 
+// SuccessResponse создаёт успешный ответ
 func SuccessResponse(data interface{}) APIResponse {
     return APIResponse{
         Success: true,
@@ -19,7 +20,8 @@ func SuccessResponse(data interface{}) APIResponse {
     }
 }
 
-func ErrorResponse(message string) APIResponse {
+// NewErrorResponse создаёт ответ с ошибкой (переименовали функцию!)
+func NewErrorResponse(message string) APIResponse {
     return APIResponse{
         Success: false,
         Error:   message,
