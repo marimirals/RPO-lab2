@@ -19,14 +19,18 @@ func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
             return
         }
 
-        parts := strings.SplitN(authHeader, " ", 2)
-        if len(parts) != 2 || parts[0] != "Bearer" {
+        token := strings.TrimSpace(authHeader)
+        if strings.HasPrefix(token, "Bearer ") {
+            token = strings.TrimPrefix(token, "Bearer ")
+        }
+        
+        if token == "" {
             c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid authorization format"})
             c.Abort()
             return
         }
 
-        claims, err := authService.ValidateToken(parts[1])
+        claims, err := authService.ValidateToken(token)
         if err != nil {
             c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
             c.Abort()
