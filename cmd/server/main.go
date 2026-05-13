@@ -13,7 +13,9 @@ package main
 import (
     "fmt"
     "log"
+    "time"
 
+    "github.com/gin-contrib/cors"
     "github.com/gin-gonic/gin"
     "github.com/joho/godotenv"
     swaggerFiles "github.com/swaggo/files"
@@ -124,6 +126,17 @@ func setupRouter(
 ) *gin.Engine {
     gin.SetMode(gin.ReleaseMode)
     router := gin.New()
+
+    corsConfig := cors.Config{
+        AllowOrigins:     []string{"http://localhost:3000", "http://localhost:5173"},
+        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+        AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization", "X-Terminal-Token"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true,
+        MaxAge:           12 * time.Hour,
+    }
+    router.Use(cors.New(corsConfig))
+
     router.Use(gin.Recovery())
 
     // Swagger UI
