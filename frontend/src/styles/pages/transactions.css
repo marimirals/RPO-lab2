@@ -1,0 +1,36 @@
+.transactions-page .search-section {
+  margin-bottom: 1.5rem;
+}
+
+.transactions-table .amount {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.transactions-table .amount.negative {
+  color: var(--error);
+}
+
+.transactions-table .status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
+}
+
+.transactions-table .status.pending {
+  background: rgba(243, 156, 18, 0.1);
+  color: var(--warning);
+}
+
+.transactions-table .status.completed {
+  background: rgba(39, 174, 96, 0.1);
+  color: var(--success);
+}
+
+.transactions-table .status.failed {
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--error);
+}
